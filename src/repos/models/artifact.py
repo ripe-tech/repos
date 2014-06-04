@@ -8,6 +8,7 @@ class Artifact(appier_extras.admin.Base):
 
     version = appier.field(
         index = True,
+        default = True,
         immutable = True
     )
 
