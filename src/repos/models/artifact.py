@@ -48,7 +48,7 @@ class Artifact(appier_extras.admin.Base):
     def retrieve(cls, name, version = None):
         kwargs = dict()
         if version: kwargs["version"] = version
-        artifact = Artifact.get(name, rules = False, **kwargs)
+        artifact = Artifact.get(package = name, rules = False, **kwargs)
         file = open(artifact.path, "rb")
         try: contents = file.read()
         finally: file.close()
@@ -56,7 +56,7 @@ class Artifact(appier_extras.admin.Base):
 
     @classmethod
     def publish(cls, name, version, data, info = None, type = "package"):
-        artifact = Artifact.get(name, version = version, raise_e = False)
+        artifact = Artifact.get(name = name, version = version, raise_e = False)
         if artifact: raise appier.OperationalError(message = "Duplicated artifact")
         path = cls.store(name, version, data)
         _package = package.Package.get(name = name, raise_e = False)
@@ -88,5 +88,5 @@ class Artifact(appier_extras.admin.Base):
     def _info(cls, name, version = None):
         kwargs = dict()
         if version: kwargs["version"] = version
-        artifact = Artifact.get(name, rules = False, **kwargs)
+        artifact = Artifact.get(package = name, rules = False, **kwargs)
         return artifact.info
