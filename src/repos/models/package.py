@@ -4,8 +4,8 @@
 import appier
 import appier_extras
 
-import repo
-import artifact
+from . import repo
+from . import artifact
 
 class Package(appier_extras.admin.Base):
 
