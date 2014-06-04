@@ -17,11 +17,13 @@ class Artifact(appier_extras.admin.Base):
     )
 
     info = appier.field(
-        type = dict
+        type = dict,
+        private = True
     )
 
     path = appier.field(
-        index = True
+        index = True,
+        private = True
     )
 
     package = appier.field(
@@ -46,7 +48,7 @@ class Artifact(appier_extras.admin.Base):
     def retrieve(cls, name, version = None):
         kwargs = dict()
         if version: kwargs["version"] = version
-        artifact = Artifact.get(name, **kwargs)
+        artifact = Artifact.get(name, rules = False, **kwargs)
         file = open(artifact.path, "rb")
         try: contents = file.read()
         finally: file.close()
@@ -71,9 +73,9 @@ class Artifact(appier_extras.admin.Base):
 
     @classmethod
     def store(cls, name, version, data):
-        BASE_PATH = "c:/repo" # @todo must be env variable
-        base_path = os.path.join(BASE_PATH, name)
-        file_path = os.path.join(base_path, version + ".cpx")
+        repo_path = appier.conf("REPO_PATH", "repo")
+        base_path = os.path.join(repo_path, name)
+        file_path = os.path.join(base_path, version)
         base_path = os.path.normpath(base_path)
         file_path = os.path.normpath(file_path)
         if not os.path.exists(base_path): os.makedirs(base_path)
@@ -86,5 +88,5 @@ class Artifact(appier_extras.admin.Base):
     def _info(cls, name, version = None):
         kwargs = dict()
         if version: kwargs["version"] = version
-        artifact = Artifact.get(name, **kwargs)
+        artifact = Artifact.get(name, rules = False, **kwargs)
         return artifact.info
