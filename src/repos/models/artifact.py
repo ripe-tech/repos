@@ -16,6 +16,10 @@ class Artifact(appier_extras.admin.Base):
         immutable = True
     )
 
+    info = appier.field(
+        type = dict
+    )
+
     path = appier.field(
         index = True
     )
@@ -49,16 +53,21 @@ class Artifact(appier_extras.admin.Base):
         return contents
 
     @classmethod
-    def publish(cls, name, version, data):
+    def publish(cls, name, version, data, info = None, type = "package"):
         artifact = Artifact.get(name, version = version, raise_e = False)
         if artifact: raise appier.OperationalError(message = "Duplicated artifact")
         path = cls.store(name, version, data)
         _package = package.Package.get(name = name, raise_e = False)
         if not _package:
-            _package = package.Package(name = name)
+            _package = package.Package(name = name, type = type)
             _package.save()
-        artifcat = Artifact(version = version, path = path, package = _package)
-        artifcat.save()
+        artifact = Artifact(
+            version = version,
+            info = info,
+            path = path,
+            package = _package
+        )
+        artifact.save()
 
     @classmethod
     def store(cls, name, version, data):
@@ -72,3 +81,10 @@ class Artifact(appier_extras.admin.Base):
         try: file.write(data)
         finally: file.close()
         return file_path
+
+    @classmethod
+    def _info(cls, name, version = None):
+        kwargs = dict()
+        if version: kwargs["version"] = version
+        artifact = Artifact.get(name, **kwargs)
+        return artifact.info
