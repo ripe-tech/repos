@@ -12,6 +12,10 @@ class Package(appier_extras.admin.Base):
         immutable = True
     )
 
+    type = appier.field(
+        index = True
+    )
+
     @classmethod
     def validate(cls):
         return super(Package, cls).validate() + [
