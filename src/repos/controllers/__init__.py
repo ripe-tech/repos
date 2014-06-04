@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from . import base
+from . import artifact
 
-from .base import *
+from .artifact import *
