@@ -4,21 +4,12 @@
 import appier
 import appier_extras
 
-from . import repo
-
 class Package(appier_extras.admin.Base):
 
     name = appier.field(
         index = True,
         default = True,
         immutable = True
-    )
-
-    repo = appier.field(
-        type = appier.reference(
-            repo.Repo,
-            name = "name"
-        )
     )
 
     @classmethod
@@ -31,4 +22,4 @@ class Package(appier_extras.admin.Base):
 
     @classmethod
     def list_names(cls):
-        return ["name", "repo", "description"]
+        return ["name", "description"]
