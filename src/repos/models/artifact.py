@@ -11,8 +11,6 @@ class Artifact(appier_extras.admin.Base):
         immutable = True
     )
 
-    description = appier.field()
-
     package = appier.field(
         type = appier.reference(
             "Package",
@@ -26,3 +24,7 @@ class Artifact(appier_extras.admin.Base):
             appier.not_null("version"),
             appier.not_empty("version")
         ]
+
+    @classmethod
+    def list_names(cls):
+        return ["version", "package", "description"]
