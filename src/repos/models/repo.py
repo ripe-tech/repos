@@ -8,6 +8,7 @@ class Repo(appier_extras.admin.Base):
 
     name = appier.field(
         index = True,
+        default = True,
         immutable = True
     )
 
