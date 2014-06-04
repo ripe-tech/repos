@@ -16,4 +16,5 @@ class Repo(appier_extras.admin.Base):
         return super(Repo, cls).validate() + [
             appier.not_null("name"),
             appier.not_empty("name"),
+            appier.not_duplicate("name", cls._name())
         ]
