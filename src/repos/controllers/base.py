@@ -4,4 +4,13 @@
 import appier
 
 class BaseController(appier.Controller):
-    pass
+    
+    @appier.route("/artifacts", "POST")
+    #@appier.ensure(token = "admin")
+    def create_artifact(self):
+        name = self.field("name")
+        version = self.field("version")
+        contents = self.field("contents")
+        print name
+        print version
+        print contents
