@@ -5,7 +5,6 @@ import appier
 import appier_extras
 
 from . import repo
-from . import artifact
 
 class Package(appier_extras.admin.Base):
 
@@ -19,13 +18,6 @@ class Package(appier_extras.admin.Base):
         type = appier.reference(
             repo.Repo,
             name = "name"
-        )
-    )
-
-    artifacts = appier.field(
-        type = appier.references(
-            artifact.Artifact,
-            name = "id"
         )
     )
 

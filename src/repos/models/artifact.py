@@ -4,6 +4,8 @@
 import appier
 import appier_extras
 
+from . import package
+
 class Artifact(appier_extras.admin.Base):
 
     version = appier.field(
@@ -14,7 +16,7 @@ class Artifact(appier_extras.admin.Base):
 
     package = appier.field(
         type = appier.reference(
-            "Package",
+            package.Package,
             name = "name"
         )
     )
