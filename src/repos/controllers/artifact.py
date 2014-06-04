@@ -7,14 +7,14 @@ import repos
 
 class BaseController(appier.Controller):
 
-    @appier.route("/artifacts/<str:name>", "GET")
+    @appier.route("/artifacts/<str:name>", "GET", json = True)
     def retrieve(self, name):
         version = self.field("version")
         data = repos.Artifact.retrieve(name, version = version)
         self.content_type("application/colony")
         return data
 
-    @appier.route("/artifacts/<str:name>", "POST")
+    @appier.route("/artifacts/<str:name>", "POST", json = True)
     #@appier.ensure(token = "admin")
     def publish(self, name):
         version = self.field("version")
