@@ -44,7 +44,7 @@ class Artifact(appier_extras.admin.Base):
         return super(Artifact, cls).validate() + [
             appier.not_null("id"),
             appier.not_empty("id"),
-                                                  
+
             appier.not_null("version"),
             appier.not_empty("version")
         ]
