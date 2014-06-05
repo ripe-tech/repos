@@ -22,16 +22,25 @@ class PackageController(appier.Controller):
         self.content_type("application/colony")
         return data
 
-    @appier.route("/packages/<str:name>", "POST", json = True)
-    #@appier.ensure(token = "admin")
+    @appier.route("/packages", "POST", json = True)
+    @appier.ensure(token = "admin")
     def publish(self, name):
+        id = self.field("id")
+        name = self.field("name")
         version = self.field("version")
         contents = self.field("contents")
         info = self.field("info")
         type = self.field("type")
         if info: info = json.loads(info)
         _name, _content_type, data = contents
-        repos.Artifact.publish(name, version, data, info = info, type = type)
+        repos.Artifact.publish(
+            id,
+            name,
+            version,
+            data,
+            info = info,
+            type = type
+        )
 
     @appier.route("/packages/<str:name>/info", "GET", json = True)
     def info(self, name):

@@ -10,6 +10,12 @@ from . import package
 
 class Artifact(appier_extras.admin.Base):
 
+    id = appier.field(
+        index = True,
+        default = True,
+        immutable = True
+    )
+
     version = appier.field(
         index = True,
         default = True,
@@ -36,6 +42,9 @@ class Artifact(appier_extras.admin.Base):
     @classmethod
     def validate(cls):
         return super(Artifact, cls).validate() + [
+            appier.not_null("id"),
+            appier.not_empty("id"),
+                                                  
             appier.not_null("version"),
             appier.not_empty("version")
         ]
@@ -45,25 +54,32 @@ class Artifact(appier_extras.admin.Base):
         return ["version", "package", "description"]
 
     @classmethod
-    def retrieve(cls, name, version = None):
+    def retrieve(cls, id = None, name = None, version = None):
         kwargs = dict()
+        if id: kwargs["id"] = id
+        if name: kwargs["package"] = name
         if version: kwargs["version"] = version
-        artifact = Artifact.get(package = name, rules = False, **kwargs)
+        artifact = Artifact.get(rules = False, **kwargs)
         file = open(artifact.path, "rb")
         try: contents = file.read()
         finally: file.close()
         return contents
 
     @classmethod
-    def publish(cls, name, version, data, info = None, type = "package"):
-        artifact = Artifact.get(name = name, version = version, raise_e = False)
+    def publish(cls, id, name, version, data, info = None, type = "package"):
+        artifact = Artifact.get(id = id, name = name, version = version, raise_e = False)
         if artifact: raise appier.OperationalError(message = "Duplicated artifact")
-        path = cls.store(name, version, data)
-        _package = package.Package.get(name = name, raise_e = False)
+        _package = package.Package.get(id = id, name = name, raise_e = False)
         if not _package:
-            _package = package.Package(name = name, type = type)
+            _package = package.Package(
+                id = id,
+                name = name,
+                type = type
+            )
             _package.save()
+        path = cls.store(name, version, data)
         artifact = Artifact(
+            id = id,
             version = version,
             info = info,
             path = path,
