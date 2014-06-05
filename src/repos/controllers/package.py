@@ -11,8 +11,8 @@ class PackageController(appier.Controller):
 
     @appier.route("/packages", "GET", json = True)
     def list(self):
-        object = appier.get_object(alias = True, find = True)
-        packages = repos.Package.find(map = True, **object)
+        fields = self.fields()
+        packages = repos.Package.find(map = True, **fields)
         return packages
 
     @appier.route("/packages/<str:name>", "GET", json = True)
@@ -24,7 +24,7 @@ class PackageController(appier.Controller):
 
     @appier.route("/packages", "POST", json = True)
     @appier.ensure(token = "admin")
-    def publish(self, name):
+    def publish(self):
         id = self.field("id")
         name = self.field("name")
         version = self.field("version")
