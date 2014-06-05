@@ -66,9 +66,9 @@ class Artifact(appier_extras.admin.Base):
         return contents
 
     @classmethod
-    def publish(cls, id, name, version, data, info = None, type = "package"):
-        artifact = Artifact.get(id = id, name = name, version = version, raise_e = False)
-        if artifact: raise appier.OperationalError(message = "Duplicated artifact")
+    def publish(cls, id, name, version, data, info = None, type = "package", replace = True):
+        artifact = Artifact.get(id = id, package = name, version = version, raise_e = False)
+        if artifact and not replace: raise appier.OperationalError(message = "Duplicated artifact")
         _package = package.Package.get(id = id, name = name, raise_e = False)
         if not _package:
             _package = package.Package(
@@ -78,13 +78,13 @@ class Artifact(appier_extras.admin.Base):
             )
             _package.save()
         path = cls.store(name, version, data)
-        artifact = Artifact(
+        artifact = artifact or Artifact(
             id = id,
             version = version,
-            info = info,
-            path = path,
             package = _package
         )
+        artifact.info = info
+        artifact.path = path
         artifact.save()
 
     @classmethod
