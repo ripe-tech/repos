@@ -18,7 +18,7 @@ class PackageController(appier.Controller):
     @appier.route("/packages/<str:name>", "GET", json = True)
     def retrieve(self, name):
         version = self.field("version")
-        data = repos.Artifact.retrieve(name, version = version)
+        data = repos.Artifact.retrieve(name = name, version = version)
         self.content_type("application/colony")
         return data
 
@@ -45,4 +45,4 @@ class PackageController(appier.Controller):
     @appier.route("/packages/<str:name>/info", "GET", json = True)
     def info(self, name):
         version = self.field("version")
-        return repos.Artifact._info(name, version = version)
+        return repos.Artifact._info(name = name, version = version)
