@@ -11,12 +11,14 @@ class PackageController(appier.Controller):
 
     @appier.route("/packages", "GET", json = True)
     def list(self):
+        self.ensure_auth()
         fields = self.fields()
         packages = repos.Package.find(map = True, **fields)
         return packages
 
     @appier.route("/packages/<str:name>", "GET", json = True)
     def retrieve(self, name):
+        self.ensure_auth()
         version = self.field("version")
         data = repos.Artifact.retrieve(name = name, version = version)
         self.content_type("application/colony")
@@ -46,3 +48,14 @@ class PackageController(appier.Controller):
     def info(self, name):
         version = self.field("version")
         return repos.Artifact._info(name = name, version = version)
+
+    def ensure_auth(self):
+        username = appier.conf("REPO_USERNAME", None)
+        password = appier.conf("REPO_PASSWORD", None)
+        if not username: return
+        authorization = self.request.authorization
+        is_valid = authorization == (username, password)
+        if not is_valid: raise appier.SecurityError(
+            message = "No valid account found",
+            code = 401
+        )
