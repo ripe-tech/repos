@@ -54,7 +54,7 @@ class PackageController(appier.Controller):
         password = appier.conf("REPO_PASSWORD", None)
         if not username: return
         authorization = self.request.authorization
-        is_valid = authorization == (username, password)
+        is_valid = tuple(authorization) == (username, password)
         if not is_valid: raise appier.SecurityError(
             message = "Authentication failed",
             code = 401,
