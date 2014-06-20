@@ -56,6 +56,6 @@ class PackageController(appier.Controller):
         authorization = self.request.authorization
         is_valid = authorization == (username, password)
         if not is_valid: raise appier.SecurityError(
-            message = "No valid account found",
+            message = "Authentication and access is denied",
             code = 401
         )
