@@ -56,6 +56,9 @@ class PackageController(appier.Controller):
         authorization = self.request.authorization
         is_valid = authorization == (username, password)
         if not is_valid: raise appier.SecurityError(
-            message = "Authentication and access is denied",
-            code = 401
+            message = "Authentication failed",
+            code = 401,
+            headers = {
+                "WWW-Authenticate" : "Basic realm=\"default\""
+            }
         )
