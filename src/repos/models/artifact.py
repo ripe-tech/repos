@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import time
 
 import appier
 import appier_extras
@@ -69,6 +70,7 @@ class Artifact(appier_extras.admin.Base):
     def publish(cls, id, name, version, data, info = None, type = "package", replace = True):
         artifact = Artifact.get(id = id, package = name, version = version, raise_e = False)
         if artifact and not replace: raise appier.OperationalError(message = "Duplicated artifact")
+        if info: info["timestamp"] = time.time()
         _package = package.Package.get(id = id, name = name, raise_e = False)
         if not _package:
             _package = package.Package(
