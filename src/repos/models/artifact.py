@@ -60,16 +60,31 @@ class Artifact(appier_extras.admin.Base):
         if id: kwargs["id"] = id
         if name: kwargs["package"] = name
         if version: kwargs["version"] = version
-        artifact = Artifact.get(rules = False, **kwargs)
+        artifact = Artifact.get(rules = False, sort = [("version", -1)], **kwargs)
         file = open(artifact.path, "rb")
         try: contents = file.read()
         finally: file.close()
         return contents
 
     @classmethod
-    def publish(cls, id, name, version, data, info = None, type = "package", replace = True):
-        artifact = Artifact.get(id = id, package = name, version = version, raise_e = False)
-        if artifact and not replace: raise appier.OperationalError(message = "Duplicated artifact")
+    def publish(
+        cls,
+        id,
+        name,
+        version,
+        data,
+        info = None,
+        type = "package",
+        replace = True
+    ):
+        artifact = Artifact.get(
+            id = id,
+            package = name,
+            version = version,
+            raise_e = False
+        )
+        if artifact and not replace:
+            raise appier.OperationalError(message = "Duplicated artifact")
         if info: info["timestamp"] = time.time()
         _package = package.Package.get(id = id, name = name, raise_e = False)
         if not _package:
@@ -106,5 +121,10 @@ class Artifact(appier_extras.admin.Base):
     def _info(cls, name, version = None):
         kwargs = dict()
         if version: kwargs["version"] = version
-        artifact = Artifact.get(package = name, rules = False, **kwargs)
+        artifact = Artifact.get(
+            package = name,
+            rules = False,
+            sort = [("version", -1)],
+            **kwargs
+        )
         return artifact.info
