@@ -7,4 +7,4 @@ from . import main
 
 from .controllers import *
 from .models import *
-from .main import *
+from .main import ReposApp

@@ -3,4 +3,4 @@
 
 from . import package
 
-from .package import *
+from .package import PackageController

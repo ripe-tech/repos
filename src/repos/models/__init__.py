@@ -4,5 +4,5 @@
 from . import artifact
 from . import package
 
-from .artifact import *
-from .package import *
+from .artifact import Artifact
+from .package import Package
