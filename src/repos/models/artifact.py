@@ -61,9 +61,7 @@ class Artifact(appier_extras.admin.Base):
         if name: kwargs["package"] = name
         if version: kwargs["version"] = version
         artifact = Artifact.get(rules = False, sort = [("version", -1)], **kwargs)
-        file = open(artifact.path, "rb")
-        try: contents = file.read()
-        finally: file.close()
+        contents = cls.read(artifact.path)
         return contents
 
     @classmethod
@@ -111,11 +109,22 @@ class Artifact(appier_extras.admin.Base):
         file_path = os.path.join(base_path, version)
         base_path = os.path.normpath(base_path)
         file_path = os.path.normpath(file_path)
+        simple_path = "%s/%s" % (name, version)
         if not os.path.exists(base_path): os.makedirs(base_path)
         file = open(file_path, "wb")
         try: file.write(data)
         finally: file.close()
-        return file_path
+        return simple_path
+
+    @classmethod
+    def read(cls, path):
+        repo_path = appier.conf("REPO_PATH", "repo")
+        full_path = os.path.join(repo_path, path)
+        full_path = os.path.normpath(full_path)
+        file = open(full_path, "rb")
+        try: contents = file.read()
+        finally: file.close()
+        return contents
 
     @classmethod
     def _info(cls, name, version = None):
