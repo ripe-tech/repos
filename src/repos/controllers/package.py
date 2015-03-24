@@ -27,7 +27,8 @@ class PackageController(appier.Controller):
     @appier.route("/packages", "POST", json = True)
     @appier.ensure(token = "admin")
     def publish(self):
-        id = self.field("id")
+        identifier = self.field("id")
+        identifier = self.field("identifier", identifier) 
         name = self.field("name")
         version = self.field("version")
         contents = self.field("contents")
@@ -36,7 +37,7 @@ class PackageController(appier.Controller):
         if info: info = json.loads(info)
         _name, _content_type, data = contents
         repos.Artifact.publish(
-            id,
+            identifier,
             name,
             version,
             data,

@@ -11,7 +11,7 @@ from . import package
 
 class Artifact(appier_extras.admin.Base):
 
-    id = appier.field(
+    identifier = appier.field(
         index = True,
         default = True,
         immutable = True
@@ -43,8 +43,8 @@ class Artifact(appier_extras.admin.Base):
     @classmethod
     def validate(cls):
         return super(Artifact, cls).validate() + [
-            appier.not_null("id"),
-            appier.not_empty("id"),
+            appier.not_null("identifier"),
+            appier.not_empty("identifier"),
 
             appier.not_null("version"),
             appier.not_empty("version")
@@ -55,9 +55,9 @@ class Artifact(appier_extras.admin.Base):
         return ["version", "package", "description"]
 
     @classmethod
-    def retrieve(cls, id = None, name = None, version = None):
+    def retrieve(cls, identifier = None, name = None, version = None):
         kwargs = dict()
-        if id: kwargs["id"] = id
+        if identifier: kwargs["identifier"] = identifier
         if name: kwargs["package"] = name
         if version: kwargs["version"] = version
         artifact = Artifact.get(rules = False, sort = [("version", -1)], **kwargs)
@@ -67,7 +67,7 @@ class Artifact(appier_extras.admin.Base):
     @classmethod
     def publish(
         cls,
-        id,
+        identifier,
         name,
         version,
         data,
@@ -76,7 +76,7 @@ class Artifact(appier_extras.admin.Base):
         replace = True
     ):
         artifact = Artifact.get(
-            id = id,
+            identifier = identifier,
             package = name,
             version = version,
             raise_e = False
@@ -84,17 +84,17 @@ class Artifact(appier_extras.admin.Base):
         if artifact and not replace:
             raise appier.OperationalError(message = "Duplicated artifact")
         if info: info["timestamp"] = time.time()
-        _package = package.Package.get(id = id, name = name, raise_e = False)
+        _package = package.Package.get(identifier = identifier, name = name, raise_e = False)
         if not _package:
             _package = package.Package(
-                id = id,
+                identifier = identifier,
                 name = name,
                 type = type
             )
             _package.save()
         path = cls.store(name, version, data)
         artifact = artifact or Artifact(
-            id = id,
+            identifier = identifier,
             version = version,
             package = _package
         )
