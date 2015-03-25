@@ -27,7 +27,7 @@ class PackageController(appier.Controller):
     @appier.route("/packages", "POST", json = True)
     @appier.ensure(token = "admin")
     def publish(self):
-        identifier = self.field("identifier") 
+        identifier = self.field("identifier")
         name = self.field("name")
         version = self.field("version")
         contents = self.field("contents")
