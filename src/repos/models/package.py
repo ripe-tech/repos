@@ -36,3 +36,11 @@ class Package(appier_extras.admin.Base):
     @classmethod
     def list_names(cls):
         return ["name", "description"]
+
+    @appier.link(name = "Retrieve")
+    def retrieve_url(self, absolute = False):
+        return self.owner.url_for(
+            "package.retrieve",
+            absolute = absolute,
+            name = self.name
+        )
