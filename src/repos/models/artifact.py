@@ -3,6 +3,9 @@
 
 import os
 import time
+import shutil
+import zipfile
+import tempfile
 
 import appier
 import appier_extras
@@ -125,6 +128,56 @@ class Artifact(appier_extras.admin.Base):
         try: contents = file.read()
         finally: file.close()
         return contents
+
+    @classmethod
+    def compress(cls):
+        repo_path = appier.conf("REPO_PATH", "repo")
+        _zip_handle, zip_path = tempfile.mkstemp()
+        zip_file = zipfile.ZipFile(zip_path, "w")
+        try:
+            for name, _subdirs, files in os.walk(repo_path):
+                relative_name = os.path.relpath(name, repo_path)
+                zip_file.write(name, relative_name)
+                for filename in files:
+                    file_path = os.path.join(name, filename)
+                    relative_path = os.path.relpath(file_path, repo_path)
+                    zip_file.write(file_path, relative_path)
+        finally: zip_file.close()
+        return zip_path
+
+    @classmethod
+    def expand(cls, zip_path, empty = True):
+        repo_path = appier.conf("REPO_PATH", "repo")
+        exists = os.path.exists(repo_path)
+        if empty and exists: shutil.rmtree(repo_path); exists = False
+        if not exists: os.makedirs(repo_path)
+        zip_file = zipfile.ZipFile(zip_path, "r")
+        try: zip_file.extractall(repo_path)
+        finally: zip_file.close()
+
+    @classmethod
+    @appier.link(name = "Compress")
+    def compress_url(cls, absolute = False):
+        return appier.get_app().url_for(
+            "base.compress",
+            absolute = absolute
+        )
+
+    @classmethod
+    @appier.operation(
+        name = "Expand",
+        parameters = (
+            ("Zip File", "file", "file"),
+            ("Empty source", "empty", bool, True)
+        )
+    )
+    def expand_s(cls, file, empty):
+        _file_name, _mime_type, data = file
+        _handle, path = tempfile.mkstemp()
+        file = open(path, "wb")
+        try: file.write(data)
+        finally: file.close()
+        cls.expand(path, empty = empty)
 
     @classmethod
     def _info(cls, name, version = None):
