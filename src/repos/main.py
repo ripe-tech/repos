@@ -19,3 +19,5 @@ class ReposApp(appier.WebApp):
 if __name__ == "__main__":
     app = ReposApp()
     app.serve()
+else:
+    __path__ = []
