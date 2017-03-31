@@ -168,7 +168,7 @@ class Artifact(appier_extras.admin.Base):
         name = "Expand",
         parameters = (
             ("Zip File", "file", "file"),
-            ("Empty source", "empty", bool, True)
+            ("Empty source", "empty", bool, False)
         )
     )
     def expand_s(cls, file, empty):
