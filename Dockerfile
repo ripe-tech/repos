@@ -14,6 +14,7 @@ ENV MONGOHQ_URL mongodb://localhost
 ENV REPO_PATH /repo
 ENV REPO_USERNAME ""
 ENV REPO_PASSWORD ""
+ENV PYTHONPATH /src
 
 ADD requirements.txt /
 ADD extra.txt /
