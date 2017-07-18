@@ -41,6 +41,6 @@ class Package(appier_extras.admin.Base):
     def retrieve_url(self, absolute = False):
         return self.owner.url_for(
             "package.retrieve",
-            absolute = absolute,
-            name = self.name
+            name = self.name,
+            absolute = absolute
         )
