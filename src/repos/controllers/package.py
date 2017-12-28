@@ -60,6 +60,7 @@ class PackageController(appier.Controller):
 
     @appier.route("/packages/<str:name>/info", "GET", json = True)
     def info(self, name):
+        self.ensure_auth()
         version = self.field("version")
         return repos.Artifact._info(name = name, version = version)
 
