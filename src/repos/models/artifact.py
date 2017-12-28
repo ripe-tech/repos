@@ -77,7 +77,7 @@ class Artifact(appier_extras.admin.Base):
 
     @classmethod
     def list_names(cls):
-        return ["package", "version", "content_type" "description"]
+        return ["package", "version", "content_type", "description"]
 
     @classmethod
     def retrieve(cls, identifier = None, name = None, version = None):
