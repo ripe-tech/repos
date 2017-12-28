@@ -44,3 +44,16 @@ class Package(appier_extras.admin.Base):
             name = self.name,
             absolute = absolute
         )
+
+    @appier.view(name = "Artifacts")
+    def artifacts_v(self, *args, **kwargs):
+        from . import artifact
+        kwargs["sort"] = kwargs.get("sort", [("created", -1)])
+        kwargs.update(package = self.name)
+        return appier.lazy_dict(
+            model = artifact.Artifact,
+            kwargs = kwargs,
+            entities = appier.lazy(lambda: artifact.Artifact.find(*args, **kwargs)),
+            page = appier.lazy(lambda: artifact.Artifact.paginate(*args, **kwargs)),
+            names = ["identifier", "version"]
+        )
