@@ -200,12 +200,12 @@ class Artifact(appier_extras.admin.Base):
             ("Package", "package", str),
             ("Version", "version", str),
             ("File", "file", "file"),
-            ("Type", "type", str, "package"),
+            ("Type", "type", str, "artifact"),
             ("Replace", "replace", bool, True)
         ),
         factory = True
     )
-    def import_s(cls, package, version, file, type = "package", replace = True):
+    def import_s(cls, package, version, file, type = "artifact", replace = True):
         return cls.publish(
             package,
             version,
@@ -241,5 +241,5 @@ class Artifact(appier_extras.admin.Base):
         return "%s-%s.%s" % (
             self.package.name,
             self.version,
-            self.package.type
+            self.package.type or "artifact"
         )
