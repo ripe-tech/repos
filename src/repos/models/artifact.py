@@ -13,28 +13,47 @@ import appier_extras
 from . import package
 
 class Artifact(appier_extras.admin.Base):
+    """
+    The base unit for the management or a repository, should
+    be an unique based entity containing multiple packages/versions.
+    """
 
     identifier = appier.field(
         index = True,
         default = True,
         immutable = True
     )
+    """ A simple human readable value that should identify
+    (not univocally) this artifact """
 
     version = appier.field(
         index = True,
         default = True,
         immutable = True
     )
+    """ A simple string identifying the version of this artifact
+    should be in the form of "x.x.x", "master", "stable" etc." """
 
     info = appier.field(
         type = dict,
         private = True
     )
+    """ Dictionary that contains a series of meta-information about
+    this artifact (eg: external URLs, description, timestamps, etc.) """
 
     path = appier.field(
         index = True,
         private = True
     )
+    """ The file system path to the file where this artifact can be
+    found, this may be empty if the artifact is an external one """
+
+    content_type = appier.field(
+        index = True,
+        private = True
+    )
+    """ The field that describes the MIME based content type of the
+    artifact, to be used in data retrieval """
 
     package = appier.field(
         type = appier.reference(
@@ -42,6 +61,9 @@ class Artifact(appier_extras.admin.Base):
             name = "name"
         )
     )
+    """ Reference to the "parent" package to which this artifact
+    belongs, if this value is not set the artifact is considered
+    an "orphan" one """
 
     @classmethod
     def validate(cls):
@@ -55,7 +77,7 @@ class Artifact(appier_extras.admin.Base):
 
     @classmethod
     def list_names(cls):
-        return ["version", "package", "description"]
+        return ["package", "version", "content_type" "description"]
 
     @classmethod
     def retrieve(cls, identifier = None, name = None, version = None):
@@ -65,7 +87,8 @@ class Artifact(appier_extras.admin.Base):
         if version: kwargs["version"] = version
         artifact = Artifact.get(rules = False, sort = [("version", -1)], **kwargs)
         contents = cls.read(artifact.path)
-        return contents
+        content_type = artifact.content_type
+        return contents, content_type
 
     @classmethod
     def publish(
@@ -76,6 +99,7 @@ class Artifact(appier_extras.admin.Base):
         data,
         info = None,
         type = "package",
+        content_type = None,
         replace = True
     ):
         artifact = Artifact.get(
@@ -103,6 +127,7 @@ class Artifact(appier_extras.admin.Base):
         )
         artifact.info = info
         artifact.path = path
+        artifact.content_type = content_type
         artifact.save()
 
     @classmethod

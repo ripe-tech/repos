@@ -12,16 +12,21 @@ class PackageController(appier.Controller):
     @appier.route("/packages", "GET", json = True)
     def list(self):
         self.ensure_auth()
-        fields = self.fields()
-        packages = repos.Package.find(map = True, **fields)
+        object = appier.get_object(alias = True, find = True)
+        packages = repos.Package.find(map = True, **object)
         return packages
 
     @appier.route("/packages/<str:name>", "GET", json = True)
     def retrieve(self, name):
         self.ensure_auth()
         version = self.field("version")
-        data = repos.Artifact.retrieve(name = name, version = version)
-        self.content_type("application/colony")
+        data, content_type = repos.Artifact.retrieve(name = name, version = version)
+        appier.verify(
+            data == None,
+            message = "No data available in the package",
+            exception = appier.OperationalError
+        )
+        self.content_type(content_type or "application/octet-stream")
         return data
 
     @appier.route("/packages", "POST", json = True)
@@ -33,6 +38,7 @@ class PackageController(appier.Controller):
         contents = self.field("contents")
         info = self.field("info")
         type = self.field("type")
+        content_type = self.field("content_type")
         if info: info = json.loads(info)
         _name, _content_type, data = contents
         repos.Artifact.publish(
@@ -41,7 +47,8 @@ class PackageController(appier.Controller):
             version,
             data,
             info = info,
-            type = type
+            type = type,
+            content_type = content_type
         )
 
     @appier.route("/packages/<str:name>/info", "GET", json = True)
