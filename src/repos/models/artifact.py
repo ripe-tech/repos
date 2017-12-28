@@ -15,7 +15,7 @@ from . import package
 class Artifact(appier_extras.admin.Base):
     """
     The base unit for the management or a repository, should
-    be an unique based entity containing multiple packages/versions.
+    be an concrete based entity belonging to a package.
     """
 
     identifier = appier.field(
@@ -129,6 +129,7 @@ class Artifact(appier_extras.admin.Base):
         artifact.path = path
         artifact.content_type = content_type
         artifact.save()
+        return artifact
 
     @classmethod
     def store(cls, name, version, data):
@@ -203,6 +204,24 @@ class Artifact(appier_extras.admin.Base):
         try: file.write(data)
         finally: file.close()
         cls.expand(path, empty = empty)
+
+    @classmethod
+    @appier.operation(
+        name = "Import",
+        parameters = (
+            ("Package", "package", str),
+            ("Version", "version", str),
+            ("File", "file", "file")
+        ),
+        factory = True
+    )
+    def import_s(cls, package, version, file):
+        return cls.publish(
+            package + "_" + version,
+            package,
+            version,
+            file.read()
+        )
 
     @classmethod
     def _info(cls, name, version = None):
