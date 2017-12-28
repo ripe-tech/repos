@@ -20,14 +20,18 @@ class PackageController(appier.Controller):
     def retrieve(self, name):
         self.ensure_auth()
         version = self.field("version")
-        data, content_type = repos.Artifact.retrieve(name = name, version = version)
+        data, file_name, content_type = repos.Artifact.retrieve(name = name, version = version)
         appier.verify(
-            data == None,
+            not data == None,
             message = "No data available in the package",
             exception = appier.OperationalError
         )
         content_type = content_type or "application/octet-stream"
-        return self.send_file(data, content_type = content_type)
+        return self.send_file(
+            data,
+            name = file_name,
+            content_type = content_type
+        )
 
     @appier.route("/packages", "POST", json = True)
     @appier.ensure(token = "admin")

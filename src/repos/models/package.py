@@ -5,29 +5,29 @@ import appier
 import appier_extras
 
 class Package(appier_extras.admin.Base):
+    """
+    Top level entity that identifies a unique object
+    in the system and that "contains" multiple artifacts
+    representing multiple versions of the same package.
+    """
 
-    identifier = appier.field(
+    name = appier.field(
         index = True,
         default = True,
         immutable = True
     )
-
-    name = appier.field(
-        index = True,
-        immutable = True
-    )
+    """ The technical name of the package that should
+    identify it unequivocally """
 
     type = appier.field(
         index = True
     )
+    """ The kind of package represented, different values
+    may impose different interpretations by the client """
 
     @classmethod
     def validate(cls):
         return super(Package, cls).validate() + [
-            appier.not_null("identifier"),
-            appier.not_empty("identifier"),
-            appier.not_duplicate("identifier", cls._name()),
-
             appier.not_null("name"),
             appier.not_empty("name"),
             appier.not_duplicate("name", cls._name())
@@ -35,7 +35,7 @@ class Package(appier_extras.admin.Base):
 
     @classmethod
     def list_names(cls):
-        return ["name", "description"]
+        return ["name", "type", "description"]
 
     @appier.link(name = "Retrieve")
     def retrieve_url(self, absolute = False):

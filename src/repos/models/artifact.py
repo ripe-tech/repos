@@ -49,8 +49,7 @@ class Artifact(appier_extras.admin.Base):
     found, this may be empty if the artifact is an external one """
 
     content_type = appier.field(
-        index = True,
-        private = True
+        index = True
     )
     """ The field that describes the MIME based content type of the
     artifact, to be used in data retrieval """
@@ -77,7 +76,7 @@ class Artifact(appier_extras.admin.Base):
 
     @classmethod
     def list_names(cls):
-        return ["package", "version", "content_type", "description"]
+        return ["identifier", "package", "version"]
 
     @classmethod
     def retrieve(cls, identifier = None, name = None, version = None):
@@ -87,8 +86,9 @@ class Artifact(appier_extras.admin.Base):
         if version: kwargs["version"] = version
         artifact = Artifact.get(rules = False, sort = [("version", -1)], **kwargs)
         contents = cls.read(artifact.path)
+        file_name = artifact.file_name
         content_type = artifact.content_type
-        return contents, content_type
+        return contents, file_name, content_type
 
     @classmethod
     def publish(
@@ -111,13 +111,9 @@ class Artifact(appier_extras.admin.Base):
         if artifact and not replace:
             raise appier.OperationalError(message = "Duplicated artifact")
         if info: info["timestamp"] = time.time()
-        _package = package.Package.get(identifier = identifier, name = name, raise_e = False)
+        _package = package.Package.get(name = name, raise_e = False)
         if not _package:
-            _package = package.Package(
-                identifier = identifier,
-                name = name,
-                type = type
-            )
+            _package = package.Package(name = name, type = type)
             _package.save()
         path = cls.store(name, version, data)
         artifact = artifact or Artifact(
@@ -211,16 +207,21 @@ class Artifact(appier_extras.admin.Base):
         parameters = (
             ("Package", "package", str),
             ("Version", "version", str),
-            ("File", "file", "file")
+            ("File", "file", "file"),
+            ("Type", "type", str, "package"),
+            ("Replace", "replace", bool, True)
         ),
         factory = True
     )
-    def import_s(cls, package, version, file):
+    def import_s(cls, package, version, file, type = "package", replace = True):
         return cls.publish(
             package + "_" + version,
             package,
             version,
-            file.read()
+            file.read(),
+            type = type,
+            content_type = file.mime,
+            replace = replace
         )
 
     @classmethod
@@ -234,3 +235,16 @@ class Artifact(appier_extras.admin.Base):
             **kwargs
         )
         return artifact.info
+
+    @appier.link(name = "Retrieve")
+    def retrieve_url(self, absolute = False):
+        return appier.get_app().url_for(
+            "package.retrieve",
+            absolute = absolute,
+            name = self.package.name,
+            version = self.version
+        )
+
+    @property
+    def file_name(self):
+        return "%s.%s" % (self.package.name, self.version)
