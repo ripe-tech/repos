@@ -16,8 +16,15 @@ class Package(appier_extras.admin.Base):
         default = True,
         immutable = True
     )
-    """ The technical name of the package that should
-    identify it unequivocally """
+    """ The human readable name of the package that should
+    also identify it unequivocally """
+
+    identifier = appier.field(
+        index = True,
+        immutable = True
+    )
+    """ A technical name of the package, that should identify
+    univocally this artifact, not meant to be readable """
 
     type = appier.field(
         index = True
@@ -28,6 +35,10 @@ class Package(appier_extras.admin.Base):
     @classmethod
     def validate(cls):
         return super(Package, cls).validate() + [
+            appier.not_null("identifier"),
+            appier.not_empty("identifier"),
+            appier.not_duplicate("identifier", cls._name()),
+
             appier.not_null("name"),
             appier.not_empty("name"),
             appier.not_duplicate("name", cls._name())
@@ -35,7 +46,7 @@ class Package(appier_extras.admin.Base):
 
     @classmethod
     def list_names(cls):
-        return ["name", "type", "description"]
+        return ["name", "identifier", "type", "description"]
 
     @appier.link(name = "Retrieve")
     def retrieve_url(self, absolute = False):
@@ -55,5 +66,5 @@ class Package(appier_extras.admin.Base):
             kwargs = kwargs,
             entities = appier.lazy(lambda: artifact.Artifact.find(*args, **kwargs)),
             page = appier.lazy(lambda: artifact.Artifact.paginate(*args, **kwargs)),
-            names = ["identifier", "version"]
+            names = ["id", "version", "created"]
         )

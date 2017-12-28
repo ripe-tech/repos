@@ -20,7 +20,10 @@ class PackageController(appier.Controller):
     def retrieve(self, name):
         self.ensure_auth()
         version = self.field("version")
-        data, file_name, content_type = repos.Artifact.retrieve(name = name, version = version)
+        data, file_name, content_type = repos.Artifact.retrieve(
+            name = name,
+            version = version
+        )
         appier.verify(
             not data == None,
             message = "No data available in the package",
@@ -36,20 +39,20 @@ class PackageController(appier.Controller):
     @appier.route("/packages", "POST", json = True)
     @appier.ensure(token = "admin")
     def publish(self):
-        identifier = self.field("identifier")
         name = self.field("name")
         version = self.field("version")
         contents = self.field("contents")
+        identifier = self.field("identifier")
         info = self.field("info")
         type = self.field("type")
         content_type = self.field("content_type")
         if info: info = json.loads(info)
         _name, _content_type, data = contents
         repos.Artifact.publish(
-            identifier,
             name,
             version,
             data,
+            identifier = identifier,
             info = info,
             type = type,
             content_type = content_type

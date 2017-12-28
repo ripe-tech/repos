@@ -18,14 +18,6 @@ class Artifact(appier_extras.admin.Base):
     be an concrete based entity belonging to a package.
     """
 
-    identifier = appier.field(
-        index = True,
-        default = True,
-        immutable = True
-    )
-    """ A simple human readable value that should identify
-    (not univocally) this artifact """
-
     version = appier.field(
         index = True,
         default = True,
@@ -67,21 +59,19 @@ class Artifact(appier_extras.admin.Base):
     @classmethod
     def validate(cls):
         return super(Artifact, cls).validate() + [
-            appier.not_null("identifier"),
-            appier.not_empty("identifier"),
-
             appier.not_null("version"),
-            appier.not_empty("version")
+            appier.not_empty("version"),
+
+            appier.not_null("package")
         ]
 
     @classmethod
     def list_names(cls):
-        return ["identifier", "package", "version"]
+        return ["id", "package", "version", "created"]
 
     @classmethod
     def retrieve(cls, identifier = None, name = None, version = None):
         kwargs = dict()
-        if identifier: kwargs["identifier"] = identifier
         if name: kwargs["package"] = name
         if version: kwargs["version"] = version
         artifact = Artifact.get(rules = False, sort = [("version", -1)], **kwargs)
@@ -93,31 +83,29 @@ class Artifact(appier_extras.admin.Base):
     @classmethod
     def publish(
         cls,
-        identifier,
         name,
         version,
         data,
+        identifier = None,
         info = None,
         type = "package",
         content_type = None,
         replace = True
     ):
-        artifact = Artifact.get(
-            identifier = identifier,
-            package = name,
-            version = version,
-            raise_e = False
-        )
+        artifact = Artifact.get(package = name, version = version, raise_e = False)
         if artifact and not replace:
             raise appier.OperationalError(message = "Duplicated artifact")
         if info: info["timestamp"] = time.time()
         _package = package.Package.get(name = name, raise_e = False)
         if not _package:
-            _package = package.Package(name = name, type = type)
+            _package = package.Package(
+                name = name,
+                identifier = identifier or name,
+                type = type
+            )
             _package.save()
         path = cls.store(name, version, data)
         artifact = artifact or Artifact(
-            identifier = identifier,
             version = version,
             package = _package
         )
@@ -215,7 +203,6 @@ class Artifact(appier_extras.admin.Base):
     )
     def import_s(cls, package, version, file, type = "package", replace = True):
         return cls.publish(
-            package + "_" + version,
             package,
             version,
             file.read(),
