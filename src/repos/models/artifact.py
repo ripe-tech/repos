@@ -70,6 +70,10 @@ class Artifact(appier_extras.admin.Base):
         return ["id", "package", "version", "created"]
 
     @classmethod
+    def order_name(cls):
+        return ["id", -1]
+
+    @classmethod
     def retrieve(cls, identifier = None, name = None, version = None):
         kwargs = dict()
         if name: kwargs["package"] = name
