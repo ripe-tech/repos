@@ -26,8 +26,8 @@ class PackageController(appier.Controller):
             message = "No data available in the package",
             exception = appier.OperationalError
         )
-        self.content_type(content_type or "application/octet-stream")
-        return data
+        content_type = content_type or "application/octet-stream"
+        return self.send_file(data, content_type = content_type)
 
     @appier.route("/packages", "POST", json = True)
     @appier.ensure(token = "admin")
