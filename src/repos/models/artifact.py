@@ -247,4 +247,8 @@ class Artifact(appier_extras.admin.Base):
 
     @property
     def file_name(self):
-        return "%s.%s" % (self.package.name, self.version)
+        return "%s-%s.%s" % (
+            self.package.name,
+            self.version,
+            self.package.type
+        )
