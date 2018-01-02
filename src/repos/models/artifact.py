@@ -55,7 +55,8 @@ class Artifact(appier_extras.admin.Base):
 
     url = appier.field(
         index = True,
-        private = True
+        private = True,
+        description = "URL"
     )
     """ The URL to the external resource where this artifact data is
     stored, should be used for HTTP redirection """
@@ -274,6 +275,10 @@ class Artifact(appier_extras.admin.Base):
             **kwargs
         )
         return artifact.info
+
+    def pre_create(self):
+        appier_extras.admin.Base.pre_create(self)
+        self.key = self.secret()
 
     @appier.link(name = "Retrieve")
     def retrieve_url(self, absolute = False):
