@@ -33,6 +33,12 @@ class Artifact(appier_extras.admin.Base):
     """ Dictionary that contains a series of meta-information about
     this artifact (eg: external URLs, description, timestamps, etc.) """
 
+    content_type = appier.field(
+        index = True
+    )
+    """ The field that describes the MIME based content type of the
+    artifact, to be used in data retrieval """
+
     path = appier.field(
         index = True,
         private = True
@@ -40,11 +46,12 @@ class Artifact(appier_extras.admin.Base):
     """ The file system path to the file where this artifact can be
     found, this may be empty if the artifact is an external one """
 
-    content_type = appier.field(
-        index = True
+    url = appier.field(
+        index = True,
+        private = True
     )
-    """ The field that describes the MIME based content type of the
-    artifact, to be used in data retrieval """
+    """ The URL to the external resource where this artifact data is
+    stored, should be used for HTTP redirection """
 
     package = appier.field(
         type = appier.reference(
@@ -75,10 +82,20 @@ class Artifact(appier_extras.admin.Base):
 
     @classmethod
     def retrieve(cls, identifier = None, name = None, version = None):
+        # creates the dynamic set of keyword arguments taking into
+        # account the default named arguments values
         kwargs = dict()
         if name: kwargs["package"] = name
         if version: kwargs["version"] = version
+
+        # retrieves the artifact according to the search criteria and
+        # verifies that the artifact is stored locally returning immediately
+        # if that's not the case (nothing to be locally retrieved)
         artifact = Artifact.get(rules = False, sort = [("version", -1)], **kwargs)
+        if not artifact.is_local: return artifact.url
+
+        # reads the complete set of data contents from the artifact path
+        # and then returns the tuple with the content type and file name
         contents = cls.read(artifact.path)
         file_name = artifact.file_name
         content_type = artifact.content_type
@@ -89,7 +106,8 @@ class Artifact(appier_extras.admin.Base):
         cls,
         name,
         version,
-        data,
+        data = None,
+        url = None,
         identifier = None,
         info = None,
         type = "package",
@@ -108,13 +126,15 @@ class Artifact(appier_extras.admin.Base):
                 type = type
             )
             _package.save()
-        path = cls.store(name, version, data)
+        if data: path = cls.store(name, version, data)
+        else: path = None
         artifact = artifact or Artifact(
             version = version,
             package = _package
         )
         artifact.info = info
         artifact.path = path
+        artifact.url = url
         artifact.content_type = content_type
         artifact.save()
         return artifact
@@ -195,7 +215,7 @@ class Artifact(appier_extras.admin.Base):
 
     @classmethod
     @appier.operation(
-        name = "Import",
+        name = "Import File",
         parameters = (
             ("Package", "package", str),
             ("Version", "version", str),
@@ -205,13 +225,34 @@ class Artifact(appier_extras.admin.Base):
         ),
         factory = True
     )
-    def import_s(cls, package, version, file, type = "artifact", replace = True):
+    def import_file_s(cls, package, version, file, type = "artifact", replace = True):
         return cls.publish(
             package,
             version,
-            file.read(),
+            data = file.read(),
             type = type,
             content_type = file.mime,
+            replace = replace
+        )
+
+    @classmethod
+    @appier.operation(
+        name = "Import URL",
+        parameters = (
+            ("Package", "package", str),
+            ("Version", "version", str),
+            ("URL", "url", str),
+            ("Type", "type", str, "artifact"),
+            ("Replace", "replace", bool, True)
+        ),
+        factory = True
+    )
+    def import_url_s(cls, package, version, url, type = "artifact", replace = True):
+        return cls.publish(
+            package,
+            version,
+            url = url,
+            type = type,
             replace = replace
         )
 
@@ -243,3 +284,7 @@ class Artifact(appier_extras.admin.Base):
             self.version,
             self.package.type or "artifact"
         )
+
+    @property
+    def is_local(self):
+        return True if self.path else False

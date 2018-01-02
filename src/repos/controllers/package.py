@@ -20,10 +20,21 @@ class PackageController(appier.Controller):
     def retrieve(self, name):
         self.ensure_auth()
         version = self.field("version")
-        data, file_name, content_type = repos.Artifact.retrieve(
+
+        # tries to retrieve the value of the current artifact
+        # it can be either a local file tuple or remote URL
+        result = repos.Artifact.retrieve(
             name = name,
             version = version
         )
+
+        # in case the resulting value is a string it's assumed
+        # that it should be an URL and proper redirect is ensured
+        if appier.legacy.is_str(result): return self.redirect(result)
+
+        # otherwise the result should be a tuple and we must unpack
+        # it to check for proper contents
+        data, file_name, content_type = result
         appier.verify(
             not data == None,
             message = "No data available in the package",
@@ -41,17 +52,20 @@ class PackageController(appier.Controller):
     def publish(self):
         name = self.field("name", mandatory = True)
         version = self.field("version", mandatory = True)
-        contents = self.field("contents", mandatory = True)
+        contents = self.field("contents")
+        url = self.field("url")
         identifier = self.field("identifier")
         info = self.field("info")
         type = self.field("type")
         content_type = self.field("content_type")
         if info: info = json.loads(info)
-        _name, _content_type, data = contents
+        if contents: _name, _content_type, data = contents
+        else: data = None
         repos.Artifact.publish(
             name,
             version,
-            data,
+            data = data,
+            url = url,
             identifier = identifier,
             info = info,
             type = type,
