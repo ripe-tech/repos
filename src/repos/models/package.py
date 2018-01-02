@@ -48,6 +48,10 @@ class Package(appier_extras.admin.Base):
     def list_names(cls):
         return ["name", "identifier", "type", "description"]
 
+    def pre_create(self):
+        appier_extras.admin.Base.pre_create(self)
+        self.key = self.secret()
+
     @appier.link(name = "Retrieve")
     def retrieve_url(self, absolute = False):
         return self.owner.url_for(

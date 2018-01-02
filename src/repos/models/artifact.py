@@ -18,6 +18,13 @@ class Artifact(appier_extras.admin.Base):
     be an concrete based entity belonging to a package.
     """
 
+    key = appier.field(
+        index = True,
+        immutable = True
+    )
+    """ The immutable secret key that may be used to access
+    the current artifact with no authentication """
+
     version = appier.field(
         index = True,
         default = True,

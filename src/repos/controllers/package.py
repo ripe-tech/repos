@@ -61,7 +61,7 @@ class PackageController(appier.Controller):
         if info: info = json.loads(info)
         if contents: _name, _content_type, data = contents
         else: data = None
-        repos.Artifact.publish(
+        artifact = repos.Artifact.publish(
             name,
             version,
             data = data,
@@ -70,6 +70,13 @@ class PackageController(appier.Controller):
             info = info,
             type = type,
             content_type = content_type
+        )
+        return dict(
+            key = artifact.key,
+            package = artifact.package.name,
+            version = artifact.version,
+            file_name = artifact.file_name,
+            content_type = artifact.content_type
         )
 
     @appier.route("/packages/<str:name>/info", "GET", json = True)
