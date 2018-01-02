@@ -99,7 +99,7 @@ class Artifact(appier_extras.admin.Base):
         # retrieves the artifact according to the search criteria and
         # verifies that the artifact is stored locally returning immediately
         # if that's not the case (nothing to be locally retrieved)
-        artifact = Artifact.get(rules = False, sort = [("version", -1)], **kwargs)
+        artifact = Artifact.get(rules = False, sort = [("created", -1)], **kwargs)
         if not artifact.is_local: return artifact.url
 
         # reads the complete set of data contents from the artifact path
@@ -271,7 +271,7 @@ class Artifact(appier_extras.admin.Base):
         artifact = Artifact.get(
             package = name,
             rules = False,
-            sort = [("version", -1)],
+            sort = [("created", -1)],
             **kwargs
         )
         return artifact.info
@@ -279,6 +279,11 @@ class Artifact(appier_extras.admin.Base):
     def pre_create(self):
         appier_extras.admin.Base.pre_create(self)
         self.key = self.secret()
+
+    def post_create(self):
+        appier_extras.admin.Base.post_create(self)
+        self.package.latest = self.version
+        self.package.save()
 
     @appier.link(name = "Retrieve")
     def retrieve_url(self, absolute = False):

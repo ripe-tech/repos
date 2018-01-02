@@ -32,6 +32,12 @@ class Package(appier_extras.admin.Base):
     """ The kind of package represented, different values
     may impose different interpretations by the client """
 
+    latest = appier.field(
+        index = True
+    )
+    """ The name/description of the latest artifact available
+    for the this package """
+
     @classmethod
     def validate(cls):
         return super(Package, cls).validate() + [
