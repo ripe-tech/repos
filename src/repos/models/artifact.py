@@ -86,7 +86,7 @@ class Artifact(appier_extras.admin.Base):
 
     @classmethod
     def order_name(cls):
-        return ["id", -1]
+        return ["modified", -1]
 
     @classmethod
     def retrieve(cls, identifier = None, name = None, version = None):

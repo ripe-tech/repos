@@ -65,7 +65,7 @@ class Package(appier_extras.admin.Base):
     @appier.view(name = "Artifacts")
     def artifacts_v(self, *args, **kwargs):
         from . import artifact
-        kwargs["sort"] = kwargs.get("sort", [("id", -1)])
+        kwargs["sort"] = kwargs.get("sort", [("modified", -1)])
         kwargs.update(package = self.name)
         return appier.lazy_dict(
             model = artifact.Artifact,
