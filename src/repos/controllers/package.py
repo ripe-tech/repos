@@ -94,6 +94,7 @@ class PackageController(appier.Controller):
         artifacts = repos.Artifact.find(
             package = name,
             map = True,
+            sort = [("modified", -1)],
             **object
         )
         return artifacts
