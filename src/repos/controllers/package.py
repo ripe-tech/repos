@@ -18,15 +18,17 @@ class PackageController(appier.Controller):
 
     @appier.route("/packages/<str:name>", "GET", json = True)
     def retrieve(self, name):
+        # ensures proper authentication for the retrieval of
+        # the package contents
         self.ensure_auth()
+
+        # tries to retrieve the optional version field that if
+        # present will add an extra level of filtering
         version = self.field("version")
 
         # tries to retrieve the value of the current artifact
         # it can be either a local file tuple or remote URL
-        result = repos.Artifact.retrieve(
-            name = name,
-            version = version
-        )
+        result = repos.Artifact.retrieve(name = name, version = version)
 
         # in case the resulting value is a string it's assumed
         # that it should be an URL and proper redirect is ensured
