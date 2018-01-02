@@ -87,6 +87,17 @@ class PackageController(appier.Controller):
         version = self.field("version")
         return repos.Artifact._info(name = name, version = version)
 
+    @appier.route("/packages/<str:name>/artifacts", "GET", json = True)
+    def artifacts(self, name):
+        self.ensure_auth()
+        object = appier.get_object(alias = True, find = True)
+        artifacts = repos.Artifact.find(
+            package = name,
+            map = True,
+            **object
+        )
+        return artifacts
+
     def ensure_auth(self):
         username = appier.conf("REPO_USERNAME", None)
         password = appier.conf("REPO_PASSWORD", None)
