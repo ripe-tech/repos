@@ -60,6 +60,7 @@ class PackageController(appier.Controller):
         info = self.field("info")
         type = self.field("type")
         content_type = self.field("content_type")
+        print(repr(contents))
         if info: info = json.loads(info)
         if contents: _name, _content_type, data = contents
         else: data = None
