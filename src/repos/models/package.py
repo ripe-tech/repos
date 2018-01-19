@@ -52,7 +52,7 @@ class Package(appier_extras.admin.Base):
 
     @classmethod
     def list_names(cls):
-        return ["name", "identifier", "type", "description"]
+        return ["name", "identifier", "type", "latest", "description"]
 
     @appier.link(name = "Retrieve")
     def retrieve_url(self, absolute = False):
