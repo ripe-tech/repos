@@ -54,6 +54,12 @@ class Package(appier_extras.admin.Base):
     def list_names(cls):
         return ["name", "identifier", "type", "latest", "description"]
 
+    def pre_delete(self):
+        appier_extras.admin.Base.pre_delete(self)
+        from . import artifact
+        artifacts = artifact.Artifact.find(package = self.name, limit = -1)
+        for artifact in artifacts: artifact.delete()
+
     @appier.link(name = "Retrieve")
     def retrieve_url(self, absolute = False):
         return self.owner.url_for(
