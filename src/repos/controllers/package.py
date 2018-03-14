@@ -25,7 +25,7 @@ class PackageController(appier.Controller):
         # tries to retrieve the optional version and tag fields
         # that if present will add an extra level of filtering
         version = self.field("version")
-        tag = self.tag("tag")
+        tag = self.field("tag")
 
         # tries to retrieve the value of the current artifact
         # it can be either a local file tuple or remote URL
@@ -37,7 +37,7 @@ class PackageController(appier.Controller):
 
         # in case the resulting value is a string it's assumed
         # that it should be an URL and proper redirect is ensured
-        if appier.legacy.is_str(result): return self.redirect(result)
+        if appier.legacy.is_string(result): return self.redirect(result)
 
         # otherwise the result should be a tuple and we must unpack
         # it to check for proper contents

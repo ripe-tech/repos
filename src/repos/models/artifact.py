@@ -305,6 +305,19 @@ class Artifact(appier_extras.admin.Base):
             version = self.version
         )
 
+    @appier.link(
+        name = "Retrieve Tag",
+        parameters = (("Tag", "tag", str),),
+    )
+    def retrieve_tag_url(self, tag, absolute = False):
+        return appier.get_app().url_for(
+            "package.retrieve",
+            absolute = absolute,
+            name = self.package.name,
+            version = self.version,
+            tag = tag
+        )
+
     @property
     def file_name(self):
         return "%s-%s.%s" % (
