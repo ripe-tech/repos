@@ -61,7 +61,7 @@ class PackageController(appier.Controller):
         version = self.field("version", mandatory = True)
         contents = self.field("contents")
         url = self.field("url")
-        url_tags = self.field("url_tags", [], cast = "list")
+        url_tags = self.field("url_tags", [], cast = list)
         identifier = self.field("identifier")
         info = self.field("info")
         type = self.field("type")
