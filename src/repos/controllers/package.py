@@ -22,13 +22,18 @@ class PackageController(appier.Controller):
         # the package contents
         self.ensure_auth()
 
-        # tries to retrieve the optional version field that if
-        # present will add an extra level of filtering
+        # tries to retrieve the optional version and tag fields
+        # that if present will add an extra level of filtering
         version = self.field("version")
+        tag = self.tag("tag")
 
         # tries to retrieve the value of the current artifact
         # it can be either a local file tuple or remote URL
-        result = repos.Artifact.retrieve(name = name, version = version)
+        result = repos.Artifact.retrieve(
+            name = name,
+            version = version,
+            tag = tag
+        )
 
         # in case the resulting value is a string it's assumed
         # that it should be an URL and proper redirect is ensured
@@ -56,6 +61,7 @@ class PackageController(appier.Controller):
         version = self.field("version", mandatory = True)
         contents = self.field("contents")
         url = self.field("url")
+        url_tags = self.field("url_tags", [], cast = "list")
         identifier = self.field("identifier")
         info = self.field("info")
         type = self.field("type")
@@ -63,11 +69,13 @@ class PackageController(appier.Controller):
         if info: info = json.loads(info)
         if contents: _name, _content_type, data = contents
         else: data = None
+        url_tags = dict([value.split(":", 1) for value in url_tags])
         artifact = repos.Artifact.publish(
             name,
             version,
             data = data,
             url = url,
+            url_tags = url_tags,
             identifier = identifier,
             info = info,
             type = type,

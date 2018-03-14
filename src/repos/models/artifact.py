@@ -61,6 +61,14 @@ class Artifact(appier_extras.admin.Base):
     """ The URL to the external resource where this artifact data is
     stored, should be used for HTTP redirection """
 
+    url_tags = appier.field(
+        type = dict,
+        private = True,
+        description = "URL Tags"
+    )
+    """ The map that associates a certain tag with an URL, to be used
+    for more precise decision on which URL to used (eg: CDN usage) """
+
     package = appier.field(
         type = appier.reference(
             package.Package,
@@ -89,7 +97,7 @@ class Artifact(appier_extras.admin.Base):
         return ["modified", -1]
 
     @classmethod
-    def retrieve(cls, identifier = None, name = None, version = None):
+    def retrieve(cls, identifier = None, name = None, version = None, tag = None):
         # creates the dynamic set of keyword arguments taking into
         # account the default named arguments values
         kwargs = dict()
@@ -100,7 +108,7 @@ class Artifact(appier_extras.admin.Base):
         # verifies that the artifact is stored locally returning immediately
         # if that's not the case (nothing to be locally retrieved)
         artifact = Artifact.get(rules = False, sort = [("modified", -1)], **kwargs)
-        if not artifact.is_local: return artifact.url
+        if not artifact.is_local: return artifact.url_tags[tag] if tag else artifact.url
 
         # reads the complete set of data contents from the artifact path
         # and then returns the tuple with the content type and file name
@@ -116,12 +124,14 @@ class Artifact(appier_extras.admin.Base):
         version,
         data = None,
         url = None,
+        url_tags = None,
         identifier = None,
         info = None,
         type = "package",
         content_type = None,
         replace = True
     ):
+        url_tags = url_tags or dict()
         artifact = Artifact.get(package = name, version = version, raise_e = False)
         if artifact and not replace:
             raise appier.OperationalError(message = "Duplicated artifact")
@@ -143,6 +153,7 @@ class Artifact(appier_extras.admin.Base):
         artifact.info = info
         artifact.path = path
         artifact.url = url
+        artifact.url_tags = url_tags
         artifact.content_type = content_type
         artifact.save()
         return artifact
