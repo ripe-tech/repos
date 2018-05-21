@@ -186,7 +186,11 @@ class Artifact(appier_extras.admin.Base):
     def compress(cls):
         repo_path = appier.conf("REPO_PATH", "repo")
         _zip_handle, zip_path = tempfile.mkstemp()
-        zip_file = zipfile.ZipFile(zip_path, "w")
+        zip_file = zipfile.ZipFile(
+            zip_path,
+            mode = "w",
+            allowZip64 = True
+        )
         try:
             for name, _subdirs, files in os.walk(repo_path):
                 relative_name = os.path.relpath(name, repo_path)
@@ -204,7 +208,7 @@ class Artifact(appier_extras.admin.Base):
         exists = os.path.exists(repo_path)
         if empty and exists: shutil.rmtree(repo_path); exists = False
         if not exists: os.makedirs(repo_path)
-        zip_file = zipfile.ZipFile(zip_path, "r")
+        zip_file = zipfile.ZipFile(zip_path, mode = "r")
         try: zip_file.extractall(repo_path)
         finally: zip_file.close()
 
