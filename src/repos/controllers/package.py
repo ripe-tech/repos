@@ -25,7 +25,7 @@ class PackageController(appier.Controller):
         # tries to retrieve the optional version and tag fields
         # that if present will add an extra level of filtering
         version = self.field("version")
-        master = self.field("branch", "master")
+        branch = self.field("branch", "master")
         tag = self.field("tag")
 
         # tries to retrieve the value of the current artifact
@@ -33,7 +33,7 @@ class PackageController(appier.Controller):
         result = repos.Artifact.retrieve(
             name = name,
             version = version,
-            master = master,
+            branch = branch,
             tag = tag
         )
 
