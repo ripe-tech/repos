@@ -352,7 +352,7 @@ class Artifact(appier_extras.admin.Base):
             version = self.version,
             tag = tag
         )
-        
+
     @appier.operation(
         name = "Set Branch",
         parameters = (("Branch", "branch", str),)
