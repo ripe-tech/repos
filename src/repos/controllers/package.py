@@ -25,7 +25,7 @@ class PackageController(appier.Controller):
         # tries to retrieve the optional version and tag fields
         # that if present will add an extra level of filtering
         version = self.field("version")
-        branch = self.field("branch", "master")
+        branch = self.field("branch")
         tag = self.field("tag")
 
         # tries to retrieve the value of the current artifact
