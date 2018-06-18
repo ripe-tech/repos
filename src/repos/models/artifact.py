@@ -38,7 +38,6 @@ class Artifact(appier_extras.admin.Base):
 
     branch = appier.field(
         index = True,
-        immutable = True,
         initial = "master"
     )
     """ The name of the branch to which this artifact belongs to,
@@ -353,6 +352,14 @@ class Artifact(appier_extras.admin.Base):
             version = self.version,
             tag = tag
         )
+        
+    @appier.operation(
+        name = "Set Branch",
+        parameters = (("Branch", "branch", str),)
+    )
+    def set_branch_s(self, branch):
+        self.branch = branch
+        self.save()
 
     @property
     def file_name(self):
