@@ -125,7 +125,7 @@ class Artifact(appier_extras.admin.Base):
         kwargs = dict()
         if name: kwargs["package"] = name
         if version: kwargs["version"] = version
-        if branch: kwargs["branch"] = version
+        if branch: kwargs["branch"] = branch
 
         # retrieves the artifact according to the search criteria and
         # verifies that the artifact is stored locally returning immediately
