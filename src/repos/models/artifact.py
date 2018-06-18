@@ -16,6 +16,9 @@ class Artifact(appier_extras.admin.Base):
     """
     The base unit for the management or a repository, should
     be an concrete based entity belonging to a package.
+
+    It may either manage the storage of the artifact files
+    itself or delegate management on a third party.
     """
 
     key = appier.field(
@@ -32,6 +35,16 @@ class Artifact(appier_extras.admin.Base):
     )
     """ A simple string identifying the version of this artifact
     should be in the form of "x.x.x", "master", "stable" etc." """
+
+    branch = appier.field(
+        index = True,
+        immutable = True,
+        initial = "master"
+    )
+    """ The name of the branch to which this artifact belongs to,
+    by default an artifact belongs to the master branch as this is
+    the one tracked by the package to be the latest, other branches
+    may exist but explicit request must be used for its retrieval """
 
     info = appier.field(
         type = dict,
@@ -85,24 +98,35 @@ class Artifact(appier_extras.admin.Base):
             appier.not_null("version"),
             appier.not_empty("version"),
 
+            appier.not_null("branch"),
+            appier.not_empty("branch"),
+
             appier.not_null("package")
         ]
 
     @classmethod
     def list_names(cls):
-        return ["id", "package", "version", "created", "modified"]
+        return ["id", "package", "version", "branch", "created", "modified"]
 
     @classmethod
     def order_name(cls):
         return ["modified", -1]
 
     @classmethod
-    def retrieve(cls, identifier = None, name = None, version = None, tag = None):
+    def retrieve(
+        cls,
+        identifier = None,
+        name = None,
+        version = None,
+        branch = None,
+        tag = None
+    ):
         # creates the dynamic set of keyword arguments taking into
         # account the default named arguments values
         kwargs = dict()
         if name: kwargs["package"] = name
         if version: kwargs["version"] = version
+        if branch: kwargs["branch"] = version
 
         # retrieves the artifact according to the search criteria and
         # verifies that the artifact is stored locally returning immediately
@@ -122,6 +146,7 @@ class Artifact(appier_extras.admin.Base):
         cls,
         name,
         version,
+        branch = "master",
         data = None,
         url = None,
         url_tags = None,
@@ -132,7 +157,12 @@ class Artifact(appier_extras.admin.Base):
         replace = True
     ):
         url_tags = url_tags or dict()
-        artifact = Artifact.get(package = name, version = version, raise_e = False)
+        artifact = Artifact.get(
+            package = name,
+            version = version,
+            branch = branch,
+            raise_e = False
+        )
         if artifact and not replace:
             raise appier.OperationalError(message = "Duplicated artifact")
         if info: info["timestamp"] = time.time()
@@ -148,6 +178,7 @@ class Artifact(appier_extras.admin.Base):
         else: path = None
         artifact = artifact or Artifact(
             version = version,
+            branch = branch,
             package = _package
         )
         artifact.info = info
@@ -297,8 +328,9 @@ class Artifact(appier_extras.admin.Base):
 
     def post_save(self):
         appier_extras.admin.Base.post_save(self)
-        self.package.latest = self.version
-        self.package.save()
+        if self.is_master:
+            self.package.latest = self.version
+            self.package.save()
 
     @appier.link(name = "Retrieve")
     def retrieve_url(self, absolute = False):
@@ -333,3 +365,7 @@ class Artifact(appier_extras.admin.Base):
     @property
     def is_local(self):
         return True if self.path else False
+
+    @property
+    def is_master(self):
+        return self.branch == "master"

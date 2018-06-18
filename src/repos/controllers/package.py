@@ -25,6 +25,7 @@ class PackageController(appier.Controller):
         # tries to retrieve the optional version and tag fields
         # that if present will add an extra level of filtering
         version = self.field("version")
+        master = self.field("branch", "master")
         tag = self.field("tag")
 
         # tries to retrieve the value of the current artifact
@@ -32,6 +33,7 @@ class PackageController(appier.Controller):
         result = repos.Artifact.retrieve(
             name = name,
             version = version,
+            master = master,
             tag = tag
         )
 
@@ -59,6 +61,7 @@ class PackageController(appier.Controller):
     def publish(self):
         name = self.field("name", mandatory = True)
         version = self.field("version", mandatory = True)
+        branch = self.field("branch", "master")
         contents = self.field("contents")
         url = self.field("url")
         url_tags = self.field("url_tags", [], cast = list)
@@ -73,6 +76,7 @@ class PackageController(appier.Controller):
         artifact = repos.Artifact.publish(
             name,
             version,
+            branch = branch,
             data = data,
             url = url,
             url_tags = url_tags,
