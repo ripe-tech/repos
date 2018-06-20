@@ -39,6 +39,15 @@ class Package(appier_extras.admin.Base):
     """ The name/description of the latest artifact available
     for the this package """
 
+    latest_timestamp = appier.field(
+        type = int,
+        index = "all",
+        safe = True,
+        meta = "datetime"
+    )
+    """ The date (and time) of when the last artifact related with
+    this package has been made available """
+
     @classmethod
     def validate(cls):
         return super(Package, cls).validate() + [
@@ -54,6 +63,11 @@ class Package(appier_extras.admin.Base):
     @classmethod
     def list_names(cls):
         return ["name", "identifier", "type", "latest", "description"]
+
+    def pre_save(self):
+        appier_extras.admin.Base.pre_save(self)
+        if self.latest_artifact:
+            self.latest_timestamp = self.latest_artifact.timestamp
 
     def pre_delete(self):
         appier_extras.admin.Base.pre_delete(self)
@@ -80,4 +94,15 @@ class Package(appier_extras.admin.Base):
             entities = appier.lazy(lambda: artifact.Artifact.find(*args, **kwargs)),
             page = appier.lazy(lambda: artifact.Artifact.paginate(*args, **kwargs)),
             names = ["id", "version", "branch", "created", "modified"]
+        )
+
+    @property
+    def latest_artifact(self):
+        from . import artifact
+        if not self.latest: return None
+        if not self.name: return None
+        return artifact.Artifact.get(
+            version = self.latest,
+            package = self.name,
+            raise_e = False
         )
