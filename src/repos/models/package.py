@@ -33,7 +33,8 @@ class Package(appier_extras.admin.Base):
     may impose different interpretations by the client """
 
     latest = appier.field(
-        index = True
+        index = True,
+        safe = True
     )
     """ The name/description of the latest artifact available
     for the this package """
