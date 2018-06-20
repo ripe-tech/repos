@@ -93,7 +93,7 @@ class Package(appier_extras.admin.Base):
             kwargs = kwargs,
             entities = appier.lazy(lambda: artifact.Artifact.find(*args, **kwargs)),
             page = appier.lazy(lambda: artifact.Artifact.paginate(*args, **kwargs)),
-            names = ["id", "version", "branch", "created", "modified"]
+            names = ["id", "version", "branch", "timestamp"]
         )
 
     @property

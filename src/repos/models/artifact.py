@@ -114,7 +114,7 @@ class Artifact(appier_extras.admin.Base):
 
     @classmethod
     def list_names(cls):
-        return ["id", "package", "version", "branch", "created", "modified"]
+        return ["id", "package", "version", "branch", "timestamp"]
 
     @classmethod
     def order_name(cls):
