@@ -45,6 +45,15 @@ class Artifact(appier_extras.admin.Base):
     the one tracked by the package to be the latest, other branches
     may exist but explicit request must be used for its retrieval """
 
+    timestamp = appier.field(
+        type = int,
+        index = "all",
+        safe = True,
+        meta = "datetime"
+    )
+    """ The date (and time) of when this artifact has been published
+    (made available) """
+
     info = appier.field(
         type = dict,
         private = True
@@ -99,6 +108,8 @@ class Artifact(appier_extras.admin.Base):
 
             appier.not_null("branch"),
             appier.not_empty("branch"),
+
+            appier.not_null("timestamp"),
 
             appier.not_null("package")
         ]
@@ -180,6 +191,7 @@ class Artifact(appier_extras.admin.Base):
             branch = branch,
             package = _package
         )
+        artifact.timestamp = time.time()
         artifact.info = info
         artifact.path = path
         artifact.url = url
@@ -324,6 +336,7 @@ class Artifact(appier_extras.admin.Base):
     def pre_create(self):
         appier_extras.admin.Base.pre_create(self)
         self.key = self.secret()
+        self.timestamp = time.time()
 
     def post_save(self):
         appier_extras.admin.Base.post_save(self)
@@ -352,6 +365,11 @@ class Artifact(appier_extras.admin.Base):
             version = self.version,
             tag = tag
         )
+
+    @appier.operation(name = "Sync Timestamp")
+    def sync_timestamp_s(self):
+        self.timestamp = self.created
+        self.save()
 
     @appier.operation(
         name = "Set Branch",
