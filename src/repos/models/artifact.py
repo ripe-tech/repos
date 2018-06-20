@@ -109,8 +109,6 @@ class Artifact(appier_extras.admin.Base):
             appier.not_null("branch"),
             appier.not_empty("branch"),
 
-            appier.not_null("timestamp"),
-
             appier.not_null("package")
         ]
 
