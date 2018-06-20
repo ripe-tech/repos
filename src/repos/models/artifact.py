@@ -338,6 +338,10 @@ class Artifact(appier_extras.admin.Base):
         self.key = self.secret()
         self.timestamp = time.time()
 
+    def pre_update(self):
+        appier_extras.admin.Base.pre_update(self)
+        self.timestamp = self.timestamp or time.time()
+
     def post_save(self):
         appier_extras.admin.Base.post_save(self)
         if self.is_master:
