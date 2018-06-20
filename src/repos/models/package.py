@@ -66,8 +66,8 @@ class Package(appier_extras.admin.Base):
 
     def pre_save(self):
         appier_extras.admin.Base.pre_save(self)
-        if self.latest_artifact:
-            self.latest_timestamp = self.latest_artifact.timestamp
+        latest_artifact = self.latest_artifact
+        if latest_artifact: self.latest_timestamp = latest_artifact.timestamp
 
     def pre_delete(self):
         appier_extras.admin.Base.pre_delete(self)
