@@ -48,6 +48,13 @@ class Package(appier_extras.admin.Base):
     """ The date (and time) of when the last artifact related with
     this package has been made available """
 
+    branches = appier.field(
+        type = list,
+        safe = True
+    )
+    """ The list that contains the names of the complete set of branches
+    associated with this package """
+
     @classmethod
     def validate(cls):
         return super(Package, cls).validate() + [
@@ -83,6 +90,16 @@ class Package(appier_extras.admin.Base):
             absolute = absolute
         )
 
+    @appier.operation(name = "Set Branches")
+    def set_branches_s(self):
+        branches = []
+        for artifact in self.artifacts:
+            if not artifact.branch: continue
+            if artifact.branch in branches: continue
+            branches.append(artifact.branch)
+        self.branches = branches
+        self.save()
+
     @appier.view(name = "Artifacts")
     def artifacts_v(self, *args, **kwargs):
         from . import artifact
@@ -94,6 +111,15 @@ class Package(appier_extras.admin.Base):
             entities = appier.lazy(lambda: artifact.Artifact.find(*args, **kwargs)),
             page = appier.lazy(lambda: artifact.Artifact.paginate(*args, **kwargs)),
             names = ["id", "version", "branch", "timestamp"]
+        )
+
+    @property
+    def artifacts(self):
+        from . import artifact
+        if not self.name: return None
+        return artifact.Artifact.find(
+            package = self.name,
+            raise_e = False
         )
 
     @property
