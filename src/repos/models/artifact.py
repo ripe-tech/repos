@@ -343,11 +343,10 @@ class Artifact(appier_extras.admin.Base):
     def post_save(self):
         appier_extras.admin.Base.post_save(self)
         if self.is_master:
-            if self.branch and not\
-                self.branch in self.package.branches:
-                self.package.branches.append(self.branch)
             self.package.latest = self.version
-            self.package.save()
+        if self.branch and not self.branch in self.package.branches:
+            self.package.branches.append(self.branch)
+        self.package.save()
 
     @appier.link(name = "Retrieve")
     def retrieve_url(self, absolute = False):
