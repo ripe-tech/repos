@@ -118,7 +118,7 @@ class Artifact(appier_extras.admin.Base):
 
     @classmethod
     def order_name(cls):
-        return ["modified", -1]
+        return ["timestamp", -1]
 
     @classmethod
     def retrieve(
@@ -139,7 +139,7 @@ class Artifact(appier_extras.admin.Base):
         # retrieves the artifact according to the search criteria and
         # verifies that the artifact is stored locally returning immediately
         # if that's not the case (nothing to be locally retrieved)
-        artifact = Artifact.get(rules = False, sort = [("modified", -1)], **kwargs)
+        artifact = Artifact.get(rules = False, sort = [("timestamp", -1)], **kwargs)
         if not artifact.is_local: return artifact.url_tags[tag] if tag else artifact.url
 
         # reads the complete set of data contents from the artifact path
@@ -326,7 +326,7 @@ class Artifact(appier_extras.admin.Base):
         artifact = Artifact.get(
             package = name,
             rules = False,
-            sort = [("modified", -1)],
+            sort = [("timestamp", -1)],
             **kwargs
         )
         return artifact.info
