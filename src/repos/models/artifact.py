@@ -52,7 +52,8 @@ class Artifact(appier_extras.admin.Base):
         meta = "datetime"
     )
     """ The date (and time) of when this artifact has been published
-    (made available) """
+    (made available), this should be considered from a practical point
+    of view as an immutable field """
 
     info = appier.field(
         type = dict,
@@ -173,7 +174,7 @@ class Artifact(appier_extras.admin.Base):
         )
         if artifact and not replace:
             raise appier.OperationalError(message = "Duplicated artifact")
-        if info: info["timestamp"] = time.time()
+        if info: info["timestamp"] = int(time.time())
         _package = package.Package.get(name = name, raise_e = False)
         if not _package:
             _package = package.Package(
@@ -189,7 +190,7 @@ class Artifact(appier_extras.admin.Base):
             branch = branch,
             package = _package
         )
-        artifact.timestamp = time.time()
+        artifact.timestamp = int(time.time())
         artifact.info = info
         artifact.path = path
         artifact.url = url
@@ -334,11 +335,11 @@ class Artifact(appier_extras.admin.Base):
     def pre_create(self):
         appier_extras.admin.Base.pre_create(self)
         self.key = self.secret()
-        self.timestamp = time.time()
+        self.timestamp = int(time.time())
 
     def pre_update(self):
         appier_extras.admin.Base.pre_update(self)
-        self.timestamp = self.timestamp or time.time()
+        self.timestamp = self.timestamp or int(time.time())
 
     def post_save(self):
         appier_extras.admin.Base.post_save(self)
@@ -381,6 +382,13 @@ class Artifact(appier_extras.admin.Base):
     )
     def set_branch_s(self, branch):
         self.branch = branch
+        self.save()
+
+    @appier.operation(
+        name = "Timestampfix",
+    )
+    def timestampfix_s(self):
+        self.timestamp = int(self.timestamp)
         self.save()
 
     @property
