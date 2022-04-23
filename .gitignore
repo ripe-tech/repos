@@ -3,4 +3,7 @@
 
 session.shelve*
 
+/dist
+/build
+/src/repos.egg-info
 /src/repos/repo
