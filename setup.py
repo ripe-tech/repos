@@ -6,7 +6,7 @@ import setuptools
 
 setuptools.setup(
     name = "repos",
-    version = "0.1.0",
+    version = "0.2.0",
     author = "Hive Solutions Lda.",
     author_email = "development@hive.pt",
     description = "Repos",
