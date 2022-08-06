@@ -23,7 +23,9 @@ class Artifact(appier_extras.admin.Base):
 
     key = appier.field(
         index = True,
-        immutable = True
+        immutable = True,
+        observations = """Immutable secret key that may be
+        used to access the artifact"""
     )
     """ The immutable secret key that may be used to access
     the current artifact with no authentication """
@@ -31,19 +33,33 @@ class Artifact(appier_extras.admin.Base):
     version = appier.field(
         index = True,
         default = True,
-        immutable = True
+        immutable = True,
+        observations = """Simple string identifying the version
+        of this artifact should be in the form of x.x.x"""
     )
     """ A simple string identifying the version of this artifact
     should be in the form of "x.x.x", "master", "stable" etc." """
 
     branch = appier.field(
         index = True,
-        initial = "master"
+        initial = "master",
+        observations = """Name of the branch to which this artifact
+        belongs to"""
     )
     """ The name of the branch to which this artifact belongs to,
     by default an artifact belongs to the master branch as this is
     the one tracked by the package to be the latest, other branches
     may exist but explicit request must be used for its retrieval """
+
+    tags = appier.field(
+        type = list,
+        index = True,
+        initial = [],
+        observations = """Sequence of tags that describe features
+        or characteristics of the artifact"""
+    )
+    """ A sequence of tags that describe features or characteristics
+    of the artifact (eg: stable, production, buggy, etc.) """
 
     timestamp = appier.field(
         type = int,
@@ -67,14 +83,18 @@ class Artifact(appier_extras.admin.Base):
     this artifact (eg: external URLs, description, timestamps, etc.) """
 
     content_type = appier.field(
-        index = True
+        index = True,
+        observations = """The MIME based content type of the
+        artifact, used in data retrieval"""
     )
     """ The field that describes the MIME based content type of the
     artifact, to be used in data retrieval """
 
     path = appier.field(
         index = True,
-        private = True
+        private = True,
+        observations = """File system path to the file where this
+        artifact can be found"""
     )
     """ The file system path to the file where this artifact can be
     found, this may be empty if the artifact is an external one """
@@ -83,8 +103,8 @@ class Artifact(appier_extras.admin.Base):
         index = True,
         private = True,
         description = "URL",
-        observations = """The URL to the external resource where this artifact data is
-        stored, should be used for HTTP redirection"""
+        observations = """The URL to the external resource where this
+        artifact data is stored, should be used for HTTP redirection"""
     )
     """ The URL to the external resource where this artifact data is
     stored, should be used for HTTP redirection """
@@ -92,16 +112,20 @@ class Artifact(appier_extras.admin.Base):
     url_tags = appier.field(
         type = dict,
         private = True,
-        description = "URL Tags"
+        description = "URL Tags",
+        observations = """Map that associates a certain tag with
+        an URL"""
     )
     """ The map that associates a certain tag with an URL, to be used
-    for more precise decision on which URL to used (eg: CDN usage) """
+    for more precise decisions on which URL to used (eg: CDN usage) """
 
     package = appier.field(
         type = appier.reference(
             package.Package,
             name = "name"
-        )
+        ),
+        observations = """Reference to the "parent" package to which
+        this artifact belongs to"""
     )
     """ Reference to the "parent" package to which this artifact
     belongs, if this value is not set the artifact is considered
@@ -162,6 +186,7 @@ class Artifact(appier_extras.admin.Base):
         name,
         version,
         branch = "master",
+        tags = [],
         data = None,
         url = None,
         url_tags = None,
@@ -196,6 +221,7 @@ class Artifact(appier_extras.admin.Base):
             branch = branch,
             package = _package
         )
+        artifact.tags = tags
         artifact.timestamp = int(time.time())
         artifact.info = info
         artifact.path = path
@@ -388,6 +414,24 @@ class Artifact(appier_extras.admin.Base):
     )
     def set_branch_s(self, branch):
         self.branch = branch
+        self.save()
+
+    @appier.operation(
+        name = "Add Tag",
+        parameters = (("Tag", "tag", str),)
+    )
+    def add_tag_s(self, tag):
+        if tag in self.tags: return
+        self.tags.append(tag)
+        self.save()
+
+    @appier.operation(
+        name = "Remove Tag",
+        parameters = (("Tag", "tag", str),)
+    )
+    def remove_tag_s(self, tag):
+        if not tag in self.tags: return
+        self.tags.remove(tag)
         self.save()
 
     @appier.operation(

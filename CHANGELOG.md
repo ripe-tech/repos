@@ -9,7 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-*
+* Support for `tags` field in the `Artifact` model
+* Upload artifact support operation in package
 
 ### Changed
 

@@ -62,6 +62,7 @@ class PackageController(appier.Controller):
         name = self.field("name", mandatory = True)
         version = self.field("version", mandatory = True)
         branch = self.field("branch", "master")
+        tags = self.field("tags", [], cast = list)
         contents = self.field("contents")
         url = self.field("url")
         url_tags = self.field("url_tags", [], cast = list)
@@ -77,6 +78,7 @@ class PackageController(appier.Controller):
             name,
             version,
             branch = branch,
+            tags = tags,
             data = data,
             url = url,
             url_tags = url_tags,

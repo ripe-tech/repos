@@ -14,7 +14,8 @@ class Package(appier_extras.admin.Base):
     name = appier.field(
         index = True,
         default = True,
-        immutable = True
+        immutable = True,
+        observations = """The human readable name of the package"""
     )
     """ The human readable name of the package that should
     also identify it unequivocally """
@@ -23,8 +24,8 @@ class Package(appier_extras.admin.Base):
         index = True,
         immutable = True
     )
-    """ A technical name of the package, that should identify
-    univocally this artifact, not meant to be readable """
+    """ A technical name of the package, that should uniquely
+    identify this artifact, not meant to be readable """
 
     type = appier.field(
         index = True
@@ -99,6 +100,27 @@ class Package(appier_extras.admin.Base):
             branches.append(artifact.branch)
         self.branches = branches
         self.save()
+
+    @appier.operation(
+        name = "Upload Artifact",
+        parameters = (
+            ("Version", "version", str),
+            ("Branch", "branch", str, "master"),
+            ("File", "file", "file", None)
+        ),
+        factory = True
+    )
+    def upload_artifact_s(self, version, branch = "master", file = None):
+        from . import artifact
+        if file: data = file.read()
+        else: data = None
+        artifact = artifact.Artifact.publish(
+            self.name,
+            version,
+            branch = branch,
+            data = data,
+        )
+        return artifact
 
     @appier.view(name = "Artifacts")
     def artifacts_v(self, *args, **kwargs):
