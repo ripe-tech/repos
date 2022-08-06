@@ -9,8 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-* More `observations` to the fields of the `Artifact` model
-* Version, description and observations information to the Appier application
+*
 
 ### Changed
 
@@ -19,3 +18,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 *
+
+## [0.1.0] - 2020-08-06
+
+### Added
+
+* More `observations` to the fields of the `Artifact` model
+* Version, description and observations information to the Appier application
+* Initial tagged version
