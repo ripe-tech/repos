@@ -16,6 +16,15 @@ class ReposApp(appier.WebApp):
             *args, **kwargs
         )
 
+    def _version(self):
+        return "0.1.0"
+
+    def _description(self):
+        return "Repos"
+
+    def _observations(self):
+        return "Modular repository management system"
+
 if __name__ == "__main__":
     app = ReposApp()
     app.serve()

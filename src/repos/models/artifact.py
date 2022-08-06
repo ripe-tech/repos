@@ -49,7 +49,9 @@ class Artifact(appier_extras.admin.Base):
         type = int,
         index = "all",
         safe = True,
-        meta = "datetime"
+        meta = "datetime",
+        observations = """The date (and time) of when this artifact
+        has been published"""
     )
     """ The date (and time) of when this artifact has been published
     (made available), this should be considered from a practical point
@@ -57,7 +59,9 @@ class Artifact(appier_extras.admin.Base):
 
     info = appier.field(
         type = dict,
-        private = True
+        private = True,
+        observations = """Special dictionary that contain meta-information
+        about the artifact"""
     )
     """ Dictionary that contains a series of meta-information about
     this artifact (eg: external URLs, description, timestamps, etc.) """
