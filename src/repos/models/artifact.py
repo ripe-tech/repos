@@ -82,7 +82,9 @@ class Artifact(appier_extras.admin.Base):
     url = appier.field(
         index = True,
         private = True,
-        description = "URL"
+        description = "URL",
+        observations = """The URL to the external resource where this artifact data is
+        stored, should be used for HTTP redirection"""
     )
     """ The URL to the external resource where this artifact data is
     stored, should be used for HTTP redirection """
