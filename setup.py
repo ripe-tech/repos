@@ -24,7 +24,7 @@ setuptools.setup(
     },
     install_requires = [
         "appier",
-        "appier_extras",
+        "appier-extras",
         "jinja2",
         "pymongo"
     ],
