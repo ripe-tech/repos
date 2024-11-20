@@ -75,7 +75,7 @@ class Artifact(appier_extras.admin.Base):
 
     info = appier.field(
         type = dict,
-        private = True,
+        private = False,
         observations = """Special dictionary that contain meta-information
         about the artifact"""
     )

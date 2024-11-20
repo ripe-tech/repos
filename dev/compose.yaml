@@ -1,0 +1,28 @@
+name: repos
+services:
+  web:
+    restart: unless-stopped
+    image: repos/web
+    build:
+      context: ..
+      dockerfile: ./dev/Dockerfile
+    command: watchmedo auto-restart --patterns="*.py" --recursive python src/repos/main.py
+    networks:
+      - platforme-dev-network
+    volumes:
+      - ${PLATFORME_REPOS_PATH}:/app
+    ports:
+      - "8085:8080"
+    environment:
+      - LEVEL=INFO
+      - MONGOHQ_URL=mongodb://ripe-core-db-1
+      - BASE_URL=http://localhost:8080
+      - HOST=0.0.0.0
+      - PORT=8080
+
+volumes:
+  mongodb-data:
+
+networks:
+  platforme-dev-network:
+    external: true
