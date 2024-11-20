@@ -104,13 +104,16 @@ class PackageController(appier.Controller):
     @appier.route("/packages/<str:name>/artifacts", "GET", json=True)
     def artifacts(self, name):
         self.ensure_auth()
+        object_ = appier.get_object(alias=True, find=True)
+
+        # Handle sorting
+        if "sort" not in object_:
+            object_["sort"] = [("timestamp", -1)]
 
         # Perform the find query
-        object_ = appier.get_object(alias=True, find=True)
         artifacts = repos.Artifact.find(
             package=name,
             map=True,
-            sort=[("timestamp", -1)],
             **object_
         )
 
