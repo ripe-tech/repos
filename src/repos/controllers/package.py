@@ -101,16 +101,38 @@ class PackageController(appier.Controller):
         version = self.field("version")
         return repos.Artifact._info(name = name, version = version)
 
-    @appier.route("/packages/<str:name>/artifacts", "GET", json = True)
+    @appier.route("/packages/<str:name>/artifacts", "GET", json=True)
     def artifacts(self, name):
         self.ensure_auth()
-        object = appier.get_object(alias = True, find = True)
+
+        # Perform the find query
+        object_ = appier.get_object(alias=True, find=True)
         artifacts = repos.Artifact.find(
-            package = name,
-            map = True,
-            sort = [("timestamp", -1)],
-            **object
+            package=name,
+            map=True,
+            sort=[("timestamp", -1)],
+            **object_
         )
+
+        # Check if any "info" fields should be included in the response
+        expand_info = self.field("expand_info")
+        expand_info_fields = expand_info.split(",") if expand_info else []
+
+        # Add the requested expanded_info fields to the response
+        # (if requested, otherwise remove the info field)
+        if not expand_info_fields:
+            for artifact in artifacts:
+                artifact.pop("info", None)
+        else:
+            for artifact in artifacts:
+                info = artifact.get("info", {})
+                expanded_info = {}
+                for field in list(info.keys()):
+                    if field in expand_info_fields:
+                        expanded_info[field] = info[field]
+                artifact["info"] = expanded_info
+
+        # Return the processed artifacts
         return artifacts
 
     def ensure_auth(self):
