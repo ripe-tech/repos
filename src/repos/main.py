@@ -17,7 +17,7 @@ class ReposApp(appier.WebApp):
         )
 
     def _version(self):
-        return "0.2.0"
+        return "0.3.0"
 
     def _description(self):
         return "Repos"

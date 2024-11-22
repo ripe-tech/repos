@@ -19,6 +19,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 *
 
+## [0.3.0] - 2024-11-20
+
+### Added
+
+* Support for `expand_info` query parameter in the `Artifact` artifacts list controller
+
+### Fixed 
+
+* Fix support for `sort` query parameter in the `Artifact` artifacts list controller
+
+
 ## [0.2.0] - 2020-08-06
 
 ### Added
