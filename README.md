@@ -28,3 +28,25 @@ Repos is currently licensed under the [Apache License, Version 2.0](http://www.a
 [![Build Status](https://github.com/hivesolutions/repos/workflows/Main%20Workflow/badge.svg)](https://github.com/hivesolutions/repos/actions)
 [![PyPi Status](https://img.shields.io/pypi/v/repos.svg)](https://pypi.python.org/pypi/repos)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://www.apache.org/licenses/)
+
+## Development
+
+### Running with docker 
+
+Setup the environment variables:
+
+| Name                     | Type  | Description                                                          |
+| ------------------------ | ----- | -------------------------------------------------------------------- |
+| **PLATFORME_REPOS_PATH** | `str` | May be used to define the local file system directory for storage.   |
+
+Running it
+
+```bash
+docker-compose up 
+```
+
+Access it on
+
+```
+http://localhost:8085
+```
